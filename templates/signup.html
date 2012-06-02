@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<title>Sign Up</title>
+	</head>
+	
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+			width: 800px;
+		}
+		
+		.error {
+			color: red;
+		}
+		
+		label {
+			font-size: 20px;
+		}
+		
+		input[type=submit] {
+			font-size: 24px;
+		}
+	</style>
+	
+	<body>
+		<h1>Signup</h1>
+		
+		<form method="post">
+			<label>Username:
+		        <input name="username" value="{{user}}">
+		    </label>
+		    <label class="error">{{username_error}}</label>
+		    <br>
+		    <label>Password:
+		        <input type="password" name="password">
+		    </label>
+		    <label class="error">{{password_error}}</label>
+		    <br>
+		    <label>Verify Password:
+		        <input type="password" name="verify">
+		    </label>
+		    <label class="error">{{verify_error}}</label>
+		    <br>
+		    <label> Email (optional):
+		        <input name="email" value="{{email}}">
+		    </label>
+		    <label class="error">{{email_error}}</label>
+		    <br>
+		    <input type="submit">
+		</form>
+	</body>
+</html>

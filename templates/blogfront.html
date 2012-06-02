@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<title>Udacity CS253 Blog</title>
+	</head>
+	
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+			width: 800px;
+			margin: 0 auto;
+			padding: 10px;
+		}
+		
+		h1 {
+			margin: 10px auto;
+		}
+		
+		.post + .post {
+			margin-top: 20px;
+		}
+		
+		.post-subject {
+			font-weight: bold;
+			font-size: 20px;
+			margin-top: 20px;
+		}
+		
+		.post-date {
+			font-size: 10px;
+		}
+		
+		.post-content {
+			margin: 0;
+			font-size: 17px;
+		}
+		
+		#querytime {
+			font-size: 14px;
+		}
+	</style>
+	
+	<body>
+		<h1>Udacity 253 HW3 Blog</h1>
+		
+		{% for post in posts %}
+			<div class="post">
+				<div class="post-subject">{{post.subject}}</div>
+				<div class="post-date">{{post.created}}</div>
+				<hr>
+				<pre class="post-content">{{post.content}}</pre>
+			</div>
+		{% endfor %}
+		<br>
+		<div id="querytime">Queried {{querytime}} seconds ago</div>
+	</body>
+</html>

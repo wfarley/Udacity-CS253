@@ -1,0 +1,59 @@
+<html>
+	<head>
+		<title>Udacity CS253 Blog</title>
+	</head>
+	
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+			width: 800px;
+			margin: 0 auto;
+			padding: 10px;
+		}
+		
+		.error {
+			color: red;
+		}
+		
+		label {
+			display: block;
+			font-size: 20px;
+		}
+		
+		input[type=text] {
+			width: 400px;
+			font-size: 20px;
+			padding: 2px;
+		}
+		
+		textarea {
+			width: 400px;
+			height: 200px;
+			font-size: 17px;
+		}
+		
+		input[type=submit] {
+			font-size: 24px;
+		}
+	</style>
+	
+	<body>
+		<h1>New Post</h1>
+		
+		<form method="post">
+			<label>
+				<div>Subject</div>
+				<input type="text" name="subject" value="{{subject}}">
+			</label>
+			
+			<label>
+				<div>Content</div>
+				<textarea name="content">{{content}}</textarea>
+			</label>
+			
+			<div class="error">{{error}}</div>
+			<br>
+			<input type="submit">
+		</form>
+	</body>
+</html>
