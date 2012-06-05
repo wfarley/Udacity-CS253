@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<title>Udacity CS253 Final - Wiki Edit</title>
+	</head>
+	
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+			width: 800px;
+			margin: 0 auto;
+			padding: 10px;
+		}
+		
+		h1 {
+			margin: 10px auto;
+		}
+	</style>
+	
+	<body>
+		<div class="heading">
+			<a href="{{subject}}">view</a>
+			{{username}}(
+			<a href="/logout">logout</a>)
+		</div>
+		<p>
+			<form method="post">
+				<textarea name="content" id="content" rows="35" cols="80">{{content}}</textarea>
+				<br>
+				<input type="submit" value="Save"/>
+			</form>
+		</p>
+	</body>
+</html>

@@ -30,8 +30,8 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
-                               autoescape = True)
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
+                               autoescape=True)
 
 
 SECRET = 'ASecKey'
@@ -47,16 +47,20 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 last_query_times = {}
 ###
 
+
 def valid_username(username):
     return USERNAME_RE.match(username)
 
+
 def valid_password(password):
     return PASSWORD_RE.match(password)
+
 
 def valid_email(email):
     return EMAIL_RE.match(email)
 
 #-------------------------------------------------
+
 
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -74,17 +78,17 @@ class Handler(webapp2.RequestHandler):
 
 #HW4
 class BlogUser(db.Model):
-    username = db.StringProperty(required = True)
-    password_hash = db.StringProperty(required = True)
+    username = db.StringProperty(required=True)
+    password_hash = db.StringProperty(required=True)
     email = db.StringProperty()
-    created = db.DateTimeProperty(auto_now_add = True)
+    created = db.DateTimeProperty(auto_now_add=True)
 
 
 #HW3
 class BlogEntry(db.Model):
-    subject = db.StringProperty(required = True)
-    content = db.TextProperty(required = True)
-    created = db.DateTimeProperty(auto_now_add = True)
+    subject = db.StringProperty(required=True)
+    content = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
 
 
 #-------------------------------------------------
@@ -100,7 +104,7 @@ class HW6FlushHandler(Handler):
 class HW5BlogPermalinkJSONHandler(Handler):
     def get(self, post_id):
         self.response.headers['Content-Type'] = "application/json"
-        
+
         post = BlogEntry.get_by_id(int(post_id))
         if post:
             post_obj = {}
@@ -116,7 +120,7 @@ class HW5BlogJSONHandler(Handler):
         self.response.headers['Content-Type'] = "application/json"
 
         posts_list = []
-        
+
         posts = db.GqlQuery("SELECT * from BlogEntry ORDER BY created DESC LIMIT 10")
 
         for post in posts:
@@ -129,8 +133,10 @@ class HW5BlogJSONHandler(Handler):
 
 #-------------------------------------------------
 
+
 def make_secure_val(s):
     return '%s|%s' % (s, hmac.new(SECRET, s).hexdigest())
+
 
 # takes string of the format s|HASH and returns s if valid
 def check_secure_val(h):
@@ -138,14 +144,17 @@ def check_secure_val(h):
     if h == make_secure_val(val):
         return val
 
+
 def make_salt():
         return ''.join(random.choice(string.letters) for x in xrange(5))
+
 
 def make_password_hash(username, password, salt=""):
         if not salt:
             salt = make_salt()
         h = hashlib.sha256(username + password + salt).hexdigest()
         return '%s|%s' % (h, salt)
+
 
 class HW4SignupHandler(Handler):
     def render_form(self, user="", email="", username_error="", password_error="", verify_error="", email_error=""):
@@ -185,12 +194,12 @@ class HW4SignupHandler(Handler):
         if username_valid and password_valid and email_valid and password == verify:
             # check if user already exists
             users = db.GqlQuery("SELECT * FROM BlogUser WHERE username = :username", username=username)
-            
+
             if users.count() > 0:
                 self.render_form(username, email, "That user already exists.")
             else:
                 # add user to db
-                new_user = BlogUser(username = username, password_hash = make_password_hash(username, password), email = email)
+                new_user = BlogUser(username=username, password_hash=make_password_hash(username, password), email=email)
                 user_key = new_user.put()
 
                 # set cookie
@@ -198,7 +207,7 @@ class HW4SignupHandler(Handler):
                 self.set_cookie('user-id', make_secure_val(str(user_id)))
 
                 # redirect to welcome page
-                self.redirect("/blog/welcome")   #/hw4/welcome
+                self.redirect("/blog/welcome")   # /hw4/welcome
         else:
             self.render_form(username, email, err_user, err_pass, err_verify, err_email)
 
@@ -209,7 +218,7 @@ class HW4WelcomeHandler(Handler):
 
     def get(self):
         # get cookie
-        user_id_val = self.request.cookies.get('user-id',0)
+        user_id_val = self.request.cookies.get('user-id', 0)
         # validate cookie
         user_id = check_secure_val(user_id_val)
         # if valid, render welcome with username
@@ -219,7 +228,7 @@ class HW4WelcomeHandler(Handler):
                 self.render_page(user.username)
         else:
             #if not valid, redirect to signup form
-            self.redirect('/blog/signup')    #/hw4/signup
+            self.redirect('/blog/signup')    # /hw4/signup
 
 
 class HW4LoginHandler(Handler):
@@ -239,22 +248,22 @@ class HW4LoginHandler(Handler):
         error = False
 
         if username and password:
-            users_query = db.GqlQuery("SELECT * FROM BlogUser WHERE username = :username", username = username)
+            users_query = db.GqlQuery("SELECT * FROM BlogUser WHERE username = :username", username=username)
             user = users_query.get()
-            if user:                
+            if user:
                 # create hash value for the entered password
                 salt = user.password_hash.split('|')[1]
                 h = make_password_hash(username, password, salt)
                 if h == user.password_hash:
                     self.set_cookie('user-id', make_secure_val(str(user.key().id())))
-                    self.redirect("/blog/welcome")   #/hw4/welcome
+                    self.redirect("/blog/welcome")   # /hw4/welcome
                 else:
                     error = True
             else:
                 error = True
         else:
             error = True
-            
+
         if error:
             self.render_form("Invalid login")
 
@@ -262,11 +271,11 @@ class HW4LoginHandler(Handler):
 class HW4LogoutHandler(Handler):
     def set_cookie(self, cookie_name, cookie_value):
         self.response.headers.add_header('Set-Cookie', '%s=%s; Path=/' % (cookie_name, cookie_value))
-        
+
     def get(self):
         # "delete" cookie - set value to empty
         self.set_cookie('user-id', "")
-        self.redirect("/blog/signup")    #/hw4/signup
+        self.redirect("/blog/signup")    # /hw4/signup
 
 
 #-------------------------------------------------
@@ -274,7 +283,7 @@ class HW4LogoutHandler(Handler):
 class HW3BlogNewPostHandler(Handler):
     def render_front(self, subject="", content="", error=""):
         self.render("newpost.html", subject=subject, content=content, error=error)
-        
+
     def get(self):
         self.render_front()
 
@@ -283,13 +292,13 @@ class HW3BlogNewPostHandler(Handler):
         content = self.request.get("content")
 
         if subject and content:
-            post = BlogEntry(subject = subject, content = content)
+            post = BlogEntry(subject=subject, content=content)
             postkey = post.put()
 
-            memcache.delete('front_posts')  ###HW6-1
+            memcache.delete('front_posts')  # ##HW6-1
 
 #            self.redirect("/hw3blog/%d" %postkey.id())
-            self.redirect("/blog/%d" %postkey.id())
+            self.redirect("/blog/%d" % postkey.id())
         else:
             error = "You need both a subject and content"
             self.render_front(subject, content, error)
@@ -299,49 +308,47 @@ class HW3BlogHandler(Handler):
     def get(self):
         global last_query_times
 
-        posts = memcache.get('front_posts') ###HW6-1
-        if posts is None:   ###HW6-1
+        posts = memcache.get('front_posts')  # ##HW6-1
+        if posts is None:   # ##HW6-1
             posts = db.GqlQuery("SELECT * from BlogEntry ORDER BY created DESC LIMIT 10")
 
-            posts = list(posts) ###HW6-1
+            posts = list(posts)  # ##HW6-1
 
-            last_query_times['front_posts'] = time.time()   ###HW6-1
+            last_query_times['front_posts'] = time.time()   # ##HW6-1
 
-            memcache.set('front_posts', posts)  ###HW6-1
+            memcache.set('front_posts', posts)  # ##HW6-1
 
-        
         self.render("blogfront.html", posts=posts, querytime=int(time.time() - last_query_times['front_posts']))
 
 
 class HW3BlogPermalinkHandler(Handler):
     def get(self, post_id):
-        post_found = True  ###HW6-2
+        post_found = True  # ##HW6-2
 
         key = 'post' + post_id
-        
-        posts = memcache.get(key)  ###HW6-2
-        if posts is None:   ###HW6-2
+
+        posts = memcache.get(key)  # ##HW6-2
+        if posts is None:   # ##HW6-2
             post = BlogEntry.get_by_id(int(post_id))
             if post:
                 posts = []
                 posts.append(post)
 
-                last_query_times[key] = time.time()    ###HW6-2
-                memcache.set(key, posts)    ###HW6-2
-                
+                last_query_times[key] = time.time()    # ##HW6-2
+                memcache.set(key, posts)    # ##HW6-2
+
             else:
-                post_found = False    ###HW6-2
-                
+                post_found = False    # ##HW6-2
 
         ###HW6-2
         if post_found == True:
-            self.render("blogfront.html", posts = posts, querytime=int(time.time() - last_query_times[key]))
+            self.render("blogfront.html", posts=posts, querytime=int(time.time() - last_query_times[key]))
         else:
             self.write("This entry does not exist!")
 
 #-------------------------------------------------
 
-hw22Form="""
+hw22Form = """
 <h1>Signup</h1>
 <form method="post">
     <label>Username:
@@ -367,6 +374,7 @@ hw22Form="""
     <input type="submit">
 </form>
 """
+
 
 class HW22Handler(webapp2.RequestHandler):
     def write_form(self, user="", email="", username_error="", password_error="", verify_error="", email_error=""):
@@ -404,18 +412,20 @@ class HW22Handler(webapp2.RequestHandler):
             err_email = "That's not a valid email"
 
         if username_valid and password_valid and email_valid and user_password == user_verify:
-            self.redirect("/hw22/validsignup?username=%s" %esc_username)
+            self.redirect("/hw22/validsignup?username=%s" % esc_username)
         else:
             self.write_form(esc_username, esc_email, err_user, err_pass, err_verify, err_email)
+
 
 class HW22ValidHandler(webapp2.RequestHandler):
     def get(self):
         username = self.request.get("username")
-        self.response.out.write("Welcome, %s" %username)
+        self.response.out.write("Welcome, %s" % username)
 
 #-------------------------------------------------
 
-form="""
+
+form = """
 Enter some text to ROT13:
 <form method="post">
     <textarea name="text" style="height: 100px; width: 400px;">
@@ -425,6 +435,7 @@ Enter some text to ROT13:
     <input type="submit">
 </form>
 """
+
 
 #Homework 2.1
 class MainHandler(webapp2.RequestHandler):
@@ -442,15 +453,15 @@ class MainHandler(webapp2.RequestHandler):
 
     def get(self):
         self.write_form()
-        
+
     def post(self):
         #self.write_form()
         user_text = self.request.get('text')
 
         new_text = self.do_rot13(user_text)
 
-        esc_text = cgi.escape(new_text, quote = True)
-        
+        esc_text = cgi.escape(new_text, quote=True)
+
         self.write_form(esc_text)
 
 #-------------------------------------------------

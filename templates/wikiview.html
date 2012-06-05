@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<title>Udacity CS253 Final - Wiki View</title>
+	</head>
+	
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+			width: 800px;
+			margin: 0 auto;
+			padding: 10px;
+		}
+		
+		h1 {
+			margin: 10px auto;
+		}
+	</style>
+	
+	<body>
+		<div class="heading">
+			{% if username == "" %}
+				<a href="/signup">Signup</a>
+				<a href="/login">Login</a>
+			{% else %}
+				<a href="/_edit{{subject}}">Edit</a>
+				{{username}}(
+				<a href="/logout">logout</a>)
+			{% endif %}
+		</div>
+		<p>{{content|safe}}</p>
+	</body>
+</html>
